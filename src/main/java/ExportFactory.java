@@ -4,6 +4,7 @@ import java.util.Map;
 public class ExportFactory {
 
     PDocument pDocument;
+    final static ExportFactory INSTANCE = new ExportFactory();
 
     public ExportFactory create(PDocument pDocument) {
         this.pDocument = pDocument;
@@ -36,6 +37,9 @@ public class ExportFactory {
 
                 if (pNode instanceof PNodeText) {
 
+                    currentWord.setLength(0);
+                    sentence = "";
+
                     //on concatène les mots avec les bons formatages pour chacun
                     for (int k = 0; k < ((PNodeText) pNode).textualContent.size(); k++) {
 
@@ -47,7 +51,7 @@ public class ExportFactory {
                         if (pNodeToken.isBold()) {
                             currentWord.append("\\textbf{");
                         }
-                        currentWord.append(pNodeToken);
+                        currentWord.append(pNodeToken.getContent());
                         if (pNodeToken.isBold() && pNodeToken.isItalic()) {
                             currentWord.append("}}");
                         }
@@ -62,7 +66,7 @@ public class ExportFactory {
 
                     if (olderNode != null) {
                         //si on quitte une liste
-                        if ((pNode.getHierachyLevel() <= olderNode.getHierachyLevel()) && (pNode.getHierachyLevel() > 2)) {
+                        if ((pNode.getHierachyLevel() < olderNode.getHierachyLevel()) && (pNode.getHierachyLevel() > 2)) {
                             str.append("\n\\end{itemize}\n");
                         }
                     }
@@ -91,9 +95,8 @@ public class ExportFactory {
 
                     if (pNode.getHierachyLevel() > 3) {
                         //si on rentre dans une liste
-                        if (olderNode == null) {
+                        if ((olderNode == null) || (olderNode.getHierachyLevel() < pNode.getHierachyLevel())) {
                             str.append("\\begin{itemize}");
-                            //TODO : voir avec sublist
                         }
                         str.append("\\item ").append(sentence);
                     }
@@ -109,7 +112,6 @@ public class ExportFactory {
                             "    \\includegraphics[scale=0.5]{")
                             .append(pNodeImage)
                             .append("}\n" +
-                                    "    \\caption{Finalité du projet}\n" +
                                     "    \\label{fig:projet}\n" +
                                     "\\end{figure}\n" +
                                     "\n");
