@@ -43,4 +43,9 @@ public class PNodeText extends PNode {
     public ElementType getElementType() {
         return elementType;
     }
+
+    public void setTextualContent(List<PNodeToken> textualContent) {
+        this.textualContent = textualContent;
+    }
+
 }

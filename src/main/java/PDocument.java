@@ -10,6 +10,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 
 public class PDocument {
@@ -35,6 +36,10 @@ public class PDocument {
         nbPages = this.computeNbPages();
         extractedNodes = initializeNodeSet();
 
+    }
+
+    public void setExtractedNodes(Map<Integer, List<PNode>> extractedNodes) {
+        this.extractedNodes = extractedNodes;
     }
 
     Map<Integer, List<PNode>> initializeNodeSet() {

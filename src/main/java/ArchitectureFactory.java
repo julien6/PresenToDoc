@@ -97,6 +97,8 @@ public class ArchitectureFactory {
 
     public ArchitectureFactory formating() {
 
+        boolean firstRootText = true;
+
         for (int i = 0; i < nbPages; i++) {
 
             ArrayList<PNode> extractedNodeList = (ArrayList<PNode>) extractedNodes.get(i);
@@ -111,45 +113,90 @@ public class ArchitectureFactory {
 
                     PNodeText pNodeText = (PNodeText) extractedNodeList.get(j);
 
-                    //associe chaque texte à une hierarchie en fonction de la taille du texte
-                    pNodeText.setHierachyLevel(sizeToLevelMapping.get(pNodeText.fontSize));
+                    //on prend le 1er élément de niveau 0 comme titre et les autres en sous titres 1
+                    if ((sizeToLevelMapping.get(pNodeText.fontSize) == 0) && firstRootText) {
+                        pNodeText.setHierachyLevel(0);
+                        firstRootText = false;
+                    } else if (sizeToLevelMapping.get(pNodeText.fontSize) == 0) {
+                        pNodeText.setHierachyLevel(1);
+                    } else {
+                        //associe chaque texte à une hierarchie en fonction de la taille du texte
+                        pNodeText.setHierachyLevel(sizeToLevelMapping.get(pNodeText.fontSize));
+                    }
 
                     //si c'est un texte
-                    if ((pNodeText.getHierachyLevel() == nbLevel)) {
+//                    if ((pNodeText.getHierachyLevel() == nbLevel)) {
 
-                        //marquer comme texte simple
-                        pNodeText.setElementType(ElementType.SIMPLE_TEXT);
+                    //marquer comme texte simple
+                    pNodeText.setElementType(ElementType.SIMPLE_TEXT);
 
-                        //si c'est un texte de liste ou élément de liste
-                        if (beginCaracters.contains(pNodeText.textualContent.get(0).getContent())) {
+                    //si c'est un texte de liste ou élément de liste
+                    if (beginCaracters.contains(pNodeText.textualContent.get(0).getContent())) {
 
-                            //marquer comme élément de liste
-                            pNodeText.setElementType(ElementType.LIST_ELEMENT);
+                        pNodeText.getTextualContent().remove(0);
 
-                            pNodeText.setHierachyLevel(nbLevel + 1);
+                        //marquer comme élément de liste
+                        pNodeText.setElementType(ElementType.LIST_ELEMENT);
 
-                            //on prend le 1er item comme référence
-                            if (firstItem) {
-                                referenceX = pNodeText.getX();
-                                firstItem = false;
-                            }
+                        pNodeText.setHierachyLevel(nbLevel + 1);
 
-                            //si on voit un décalage par rapport à l'item précèdent, determiner le niveau hierarchique
-                            if (Math.abs(pNodeText.getX() - referenceX) > 0.) {
-                                extractedNodeList.get(j)
-                                        .setHierachyLevel((int) ((extractedNodeList.get(j).getX() - referenceX) / deltas.get(i)) + nbLevel + 1);
-                            }
+                        //on prend le 1er item comme référence
+                        if (firstItem) {
+                            referenceX = pNodeText.getX();
+                            firstItem = false;
+                        }
+
+                        //si on voit un décalage par rapport à l'item précèdent, determiner le niveau hierarchique
+                        if (Math.abs(pNodeText.getX() - referenceX) > 0.) {
+                            extractedNodeList.get(j)
+                                    .setHierachyLevel((int) ((extractedNodeList.get(j).getX() - referenceX) / deltas.get(i)) + nbLevel + 1);
                         }
                     }
+//                    }
                 }
             }
             pDocument.getExtractedNodes().put(i, new ArrayList<>(extractedNodeList));
             extractedNodeList.clear();
         }
 
+        pDocument.setExtractedNodes(textFusion(pDocument.getExtractedNodes(), 24.));
+
         return this;
     }
 
+    private Map<Integer, List<PNode>> textFusion(Map<Integer, List<PNode>> nodeSet, Double maxInterlineSpace) {
+
+        for (int i = 0; i < nbPages; i++) {
+
+            List<PNode> pNodeList = nodeSet.get(i);
+
+            for (int j = 1; j < pNodeList.size(); j++) {
+
+                if (pNodeList.get(j) instanceof PNodeText) {
+
+                    PNodeText pNodeText = (PNodeText) pNodeList.get(j);
+                    PNodeText oNodeText = (PNodeText) pNodeList.get(j - 1);
+
+                    if (Math.abs(pNodeText.getY() - oNodeText.getY()) < maxInterlineSpace) {
+
+                        //on concatène le texte du noeud ancien dans le début du texte du noeud nouveau
+                        //on lui donne les attributs spatiaux de l'ancien noeud
+                        List<PNodeToken> tmp_list = oNodeText.getTextualContent();
+                        tmp_list.addAll(pNodeText.getTextualContent());
+                        ((PNodeText) pNodeList.get(j)).setTextualContent(tmp_list);
+                        pNodeList.get(j).setX(oNodeText.getX());
+                        pNodeList.get(j).setY(oNodeText.getY());
+
+                        //on supprime l'ancien noeud
+                        pNodeList.remove(j - 1);
+                    }
+                }
+            }
+            nodeSet.put(i, new ArrayList<>(pNodeList));
+            pNodeList.clear();
+        }
+        return nodeSet;
+    }
 
     public PDocument build() {
         return this.pDocument;

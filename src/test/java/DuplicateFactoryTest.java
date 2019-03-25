@@ -9,13 +9,14 @@ class DuplicateFactoryTest {
 
     @BeforeEach
     void setUp() {
-        pDocument = new PDocument("pdfDocument.xml");
+
     }
 
     @Test
     void removeIdenticalNodes() {
 
-        pDocument = DuplicateFactory.INSTANCE.create(pDocument).removeIdenticalNodes().build();
+        pDocument = new PDocument("pdfDocument.xml");
+        //pDocument = DuplicateFactory.INSTANCE.create(pDocument).removeIdenticalNodes().build();
 
         System.out.println(pDocument);
     }

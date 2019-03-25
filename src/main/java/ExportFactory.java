@@ -19,7 +19,7 @@ public class ExportFactory {
         StringBuilder str = new StringBuilder();
 
         StringBuilder currentWord = new StringBuilder();
-        String sentence = "";
+        String sentence;
 
         str.append("\\documentclass{article}\n" +
                 "\n" +
@@ -67,12 +67,12 @@ public class ExportFactory {
                     if (olderNode != null) {
                         //si on quitte une liste
                         if ((pNode.getHierachyLevel() < olderNode.getHierachyLevel()) && (pNode.getHierachyLevel() > 2)) {
-                            str.append("\n\\end{itemize}\n");
+                            str.append("\\end{itemize}\n");
                         }
                     }
 
                     if (pNode.getHierachyLevel() == 0) {
-                        str.append("\\title{").append(sentence).append("}\n" +
+                        str.append("\n\\title{").append(sentence).append("}\n" +
                                 "\n" +
                                 "\\begin{document}\n" +
                                 "\n" +
@@ -81,24 +81,24 @@ public class ExportFactory {
                     }
 
                     if (pNode.getHierachyLevel() == 1) {
-                        str.append("\\section{").append(sentence).append("}");
+                        str.append("\n\n\\section{").append(sentence).append("}\n");
                     }
 
                     if (pNode.getHierachyLevel() == 2) {
-                        str.append("\\subsection{").append(sentence).append("}");
+                        str.append("\n\n\\subsection{").append(sentence).append("}\n");
                     }
 
                     if (pNode.getHierachyLevel() == 3) {
                         //TODO : voir avec y pour distinguer des paragraphes
-                        str.append("\n").append(sentence).append("\n");
+                        str.append("\n").append(sentence);
                     }
 
                     if (pNode.getHierachyLevel() > 3) {
                         //si on rentre dans une liste
                         if ((olderNode == null) || (olderNode.getHierachyLevel() < pNode.getHierachyLevel())) {
-                            str.append("\\begin{itemize}");
+                            str.append("\\begin{itemize}\n");
                         }
-                        str.append("\\item ").append(sentence);
+                        str.append("\t\\item ").append(sentence).append("\n");
                     }
 
                     olderNode = (PNodeText) pNode;
@@ -112,7 +112,6 @@ public class ExportFactory {
                             "    \\includegraphics[scale=0.5]{")
                             .append(pNodeImage)
                             .append("}\n" +
-                                    "    \\label{fig:projet}\n" +
                                     "\\end{figure}\n" +
                                     "\n");
                 }

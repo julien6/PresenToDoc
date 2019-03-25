@@ -36,6 +36,14 @@ public abstract class PNode {
                 && (y <= (pNode.y + delta) && y >= (pNode.y - delta));
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
     public abstract String toString();
 
     public int getHierachyLevel() {
