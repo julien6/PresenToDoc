@@ -10,7 +10,7 @@ public class ExportFactory {
         return this;
     }
 
-    public void convertToLatex(String fileName) {
+    public String convertToLatex(String fileName) {
 
         int nbPage = pDocument.getNbPages();
         Map<Integer, List<PNode>> extractedNodeList = pDocument.getExtractedNodes();
@@ -60,9 +60,11 @@ public class ExportFactory {
                         sentence = currentWord.toString();
                     }
 
-                    //si on quitte une liste
-                    if ((pNode.getHierachyLevel() <= 3) && (olderNode.getHierachyLevel() > 3) && (olderNode != null)) {
-                        str.append("\n\\end{itemize}\n");
+                    if (olderNode != null) {
+                        //si on quitte une liste
+                        if ((pNode.getHierachyLevel() <= olderNode.getHierachyLevel()) && (pNode.getHierachyLevel() > 2)) {
+                            str.append("\n\\end{itemize}\n");
+                        }
                     }
 
                     if (pNode.getHierachyLevel() == 0) {
@@ -100,12 +102,23 @@ public class ExportFactory {
 
                 } else {
 
+                    PNodeImage pNodeImage = (PNodeImage) pNode;
+
+                    str.append("\n\\begin{figure}[htp]\n" +
+                            "    \\centering\n" +
+                            "    \\includegraphics[scale=0.5]{")
+                            .append(pNodeImage)
+                            .append("}\n" +
+                                    "    \\caption{Finalité du projet}\n" +
+                                    "    \\label{fig:projet}\n" +
+                                    "\\end{figure}\n" +
+                                    "\n");
                 }
 
             }
 
         }
-
+        return str.toString();
     }
 
     public PDocument build() {
