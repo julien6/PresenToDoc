@@ -35,4 +35,12 @@ public class PNodeText extends PNode {
         textualContent.forEach(pNodeToken -> str.append(pNodeToken.getContent() + " "));
         return str.toString();
     }
+
+    public void setElementType(ElementType elementType) {
+        this.elementType = elementType;
+    }
+
+    public ElementType getElementType() {
+        return elementType;
+    }
 }

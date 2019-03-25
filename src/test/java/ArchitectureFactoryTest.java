@@ -1,8 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ArchitectureFactoryTest {
 
     private PDocument pDocument;
@@ -17,6 +15,8 @@ class ArchitectureFactoryTest {
 
         pDocument = DuplicateFactory.INSTANCE.create(pDocument).removeIdenticalNodes().build();
 
-        ArchitectureFactory.INSTANCE.create(pDocument).computeArchitecture();
+        pDocument = ArchitectureFactory.INSTANCE.create(pDocument, 3).formating().build();
+
+        System.out.println(pDocument);
     }
 }
